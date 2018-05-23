@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="jumbotron text-center">
+    <h1 class="display-3">OpenShift Provision</h1>
+
+    <p class="lead">Choose an option below to provision an OpenShift cluster in your environment.</p>
+
+    <hr class="my-4">
+
+    <div class="card-deck">
+        <div class="card">
+            <h4 class="card-header">Amazon Web Services</h4>
+            <div class="card-body">
+                <p class="card-text">Provision an OpenShift cluster in Amazon Web Services.</p>
+
+                <p class="py-4">
+                    <img src="{% static 'img/aws.png' %}" />
+                </p>
+
+                <a href="#" class="btn btn-primary">
+                    Get Started <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        <div class="card">
+            <h4 class="card-header">Microsoft Azure</h4>
+            <div class="card-body">
+                <p class="card-text">Provision an OpenShift cluster in Microsoft Azure.</p>
+
+                <p class="py-4">
+                    <img src="{% static 'img/azure.png' %}" />
+                </p>
+
+                <a href="#" class="btn btn-secondary">
+                    Coming Soon
+                </a>
+            </div>
+        </div>
+        <div class="card">
+            <h4 class="card-header">Google Cloud Platform</h4>
+            <div class="card-body">
+                <p class="card-text">Provision an OpenShift cluster in Google Cloud Platform.</p>
+
+                <p class="py-4">
+                    <img src="{% static 'img/gcp.png' %}" />
+                </p>
+
+                <a href="#" class="btn btn-secondary">
+                    Coming Soon
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

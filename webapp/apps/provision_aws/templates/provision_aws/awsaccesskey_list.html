@@ -19,7 +19,6 @@
                 <td class="text-monospace">*****{{ aws_access_key.access_key | slice:"-4:" }}</td>
                 <td class="text-monospace">*****</td>
                 <td>
-                    <a href="{% url 'aws:key_detail' aws_access_key.pk %}" class="mx-2"><i class="fas fa-eye"></i></a>
                     <a href="{% url 'aws:key_update' aws_access_key.pk %}" class="mx-2"><i class="fas fa-edit"></i></a>
                     <a href="{% url 'aws:key_delete' aws_access_key.pk %}" class="mx-2 text-danger"><i class="fas fa-trash"></i></a>
                 </td>
@@ -27,15 +26,17 @@
         {% empty %}
             <tr>
                 <td colspan="4">
-                    <p>You do not have any AWS access keys saved.</p>
-                    <p>
-                        <a href="{% url 'aws:key_add' %}" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Add Access Key
-                        </a>
-                    </p>
+                    You do not have any AWS access keys saved.
                 </td>
             </tr>
         {% endfor %}
+        <tr>
+            <td colspan="4">
+                <a href="{% url 'aws:key_add' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Access Key
+                </a>
+            </td>
+        </tr>
     </tbody>
 </table>
 {% endblock %}

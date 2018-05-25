@@ -10,7 +10,11 @@ RUN \
         python3-devel \
         which \
     && \
-    pip3 install pipenv
+    ln -sf /usr/bin/python3 /usr/local/bin/python \
+    && \
+    ln -sf /usr/bin/pip3 /usr/local/bin/pip \
+    && \
+    pip install pipenv
 
 COPY . /webapp
 WORKDIR /webapp

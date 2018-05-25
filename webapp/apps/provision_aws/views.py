@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
-from apps.provision_aws.models import AWSAccessKey
+from .models import AWSAccessKey, AWSAccessKeyForm
 from .forms import AmazonWebServicesForm, AmazonWebServicesDetailsForm
 
 
@@ -12,17 +13,22 @@ class AWSAccessKeyList(ListView):
 
 class AWSAccessKeyCreate(CreateView):
     model = AWSAccessKey
+    form_class = AWSAccessKeyForm
     context_object_name = 'aws_access_key'
+    success_url = reverse_lazy('aws:key_list')
 
 
 class AWSAccessKeyUpdate(UpdateView):
     model = AWSAccessKey
+    form_class = AWSAccessKeyForm
     context_object_name = 'aws_access_key'
+    success_url = reverse_lazy('aws:key_list')
 
 
 class AWSAccessKeyDelete(DeleteView):
     model = AWSAccessKey
     context_object_name = 'aws_access_key'
+    success_url = reverse_lazy('aws:key_list')
 
 
 def index(request):

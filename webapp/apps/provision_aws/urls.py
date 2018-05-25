@@ -9,7 +9,7 @@ urlpatterns = [
 
     path('keys/', views.AWSAccessKeyList.as_view(), name='key_list'),
     path('keys/add/', views.AWSAccessKeyCreate.as_view(), name='key_add'),
-    path('keys/<int:pk>/', views.AWSAccessKeyUpdate.as_view(), name='key_update'),
+    path('keys/<int:pk>/update/', views.AWSAccessKeyUpdate.as_view(), name='key_update'),
     path('keys/<int:pk>/delete/', views.AWSAccessKeyDelete.as_view(), name='key_delete'),
 
     path('details/', views.details, name='details'),

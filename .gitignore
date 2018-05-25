@@ -5,6 +5,9 @@
 vars/*
 !vars/aws.example.yml
 
+webapp/keys/*
+!webapp/keys/.gitkeep
+
 .idea/
 
 *.sqlite3

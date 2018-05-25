@@ -1,8 +1,11 @@
+import glob
 import logging
+import os
 
 import boto3
 import botocore.exceptions
 from django import forms
+from django.conf import settings
 
 
 logger = logging.getLogger(__name__)
@@ -72,6 +75,7 @@ class AmazonWebServicesDetailsForm(forms.Form):
     cluster_name = forms.CharField(
         label='Cluster Name',
         required=True,
+        help_text='This value will be in your DNS entries and should conform to valid DNS characters.'
     )
 
     cluster_type = forms.ChoiceField(
@@ -92,13 +96,6 @@ class AmazonWebServicesDetailsForm(forms.Form):
         ],
     )
 
-    # TODO: Rename to openshift_base_domain
-    # TODO: Validate that it is a subdomain of the hosted zone
-    openshift_base_domain = forms.CharField(
-        label='OpenShift Base Domain',
-        required=True,
-    )
-
     # TODO: Check if user can see Cloud Access AMIs and make this choice for them
     ec2_ami_type = forms.ChoiceField(
         label='EC2 AMI Type',
@@ -108,6 +105,8 @@ class AmazonWebServicesDetailsForm(forms.Form):
             ('hourly', 'Hourly'),
             ('cloud_access', 'Cloud Access'),
         ],
+        help_text=('If you have Cloud Access enabled, choose <strong>Cloud Access</strong>. Otherwise, '
+                   'choose <strong>Hourly</strong>.')
     )
 
     ec2_key_name = forms.ChoiceField(
@@ -117,15 +116,29 @@ class AmazonWebServicesDetailsForm(forms.Form):
     )
 
     # TODO: Have user mount SSH keys into container and discover list of keys
-    ec2_key_file = forms.CharField(
+    ec2_key_file = forms.ChoiceField(
         label='EC2 Private Key',
         required=True,
+        choices=[],
+        help_text='Select the private key that matches the EC2 Key Pair selected above.'
     )
 
     route53_hosted_zone_id = forms.ChoiceField(
         label='Route53 Hosted Zone',
         required=True,
         choices=[],
+    )
+
+    # TODO: Rename to openshift_base_domain
+    # TODO: Validate that it is a subdomain of the hosted zone
+    openshift_base_domain = forms.CharField(
+        label='OpenShift Base Domain',
+        required=True,
+        help_text=('The base domain for your cluster. The value should match or be a subdomain of the '
+                   'Route53 Hosted Zone.'
+                   '<br><br>'
+                   'Example: If you set this to <code>example.com</code>, a DNS entry '
+                   'of <code>&lt;cluster_name&gt;.example.com</code> will be created.')
     )
 
     rhsm_username = forms.CharField(
@@ -155,6 +168,7 @@ class AmazonWebServicesDetailsForm(forms.Form):
 
         self.fields['ec2_key_name'].choices = self._choices_ec2_key_name()
         self.fields['route53_hosted_zone_id'].choices = self._choices_route53_hosted_zone_id()
+        self.fields['ec2_key_file'].choices = self._choices_ec2_key_file()
 
     @classmethod
     def _generate_field_choices(cls, choices, include_empty_choice=False):
@@ -189,6 +203,10 @@ class AmazonWebServicesDetailsForm(forms.Form):
             hosted_zone_id = hosted_zone.get('Id', '').replace('hostedzone', '').replace('/', '')
             choices.append((hosted_zone_id, '[{}] {}'.format(hosted_zone_id, hosted_zone_name)))
 
-        print(choices)
-
         return choices
+
+    def _choices_ec2_key_file(self):
+        ssh_keys_glob = glob.glob(os.path.join(settings.SSH_KEYS_DIR, '**/*'), recursive=True)
+
+        choices = [x for x in ssh_keys_glob if os.path.isfile(x)]
+        return self._generate_field_choices(choices, include_empty_choice=True)

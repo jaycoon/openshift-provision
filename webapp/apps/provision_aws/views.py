@@ -1,6 +1,28 @@
 from django.shortcuts import render, redirect
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
+from apps.provision_aws.models import AWSAccessKey
 from .forms import AmazonWebServicesForm, AmazonWebServicesDetailsForm
+
+
+class AWSAccessKeyList(ListView):
+    model = AWSAccessKey
+    context_object_name = 'aws_access_keys'
+
+
+class AWSAccessKeyCreate(CreateView):
+    model = AWSAccessKey
+    context_object_name = 'aws_access_key'
+
+
+class AWSAccessKeyUpdate(UpdateView):
+    model = AWSAccessKey
+    context_object_name = 'aws_access_key'
+
+
+class AWSAccessKeyDelete(DeleteView):
+    model = AWSAccessKey
+    context_object_name = 'aws_access_key'
 
 
 def index(request):

@@ -2,6 +2,9 @@ FROM docker.io/library/fedora:27
 
 RUN \
     dnf install -y \
+        python2 \
+        python2-pip \
+        python2-devel \
         python3 \
         python3-pip \
         python3-devel \
@@ -9,10 +12,8 @@ RUN \
     && \
     pip3 install pipenv
 
-
 COPY . /webapp
 WORKDIR /webapp
-
 
 RUN pipenv install --system --deploy
 

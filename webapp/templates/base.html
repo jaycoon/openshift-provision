@@ -17,6 +17,31 @@
         {% block styles %}<!-- none defined -->{% endblock %}
     </head>
     <body>
+        <nav class="navbar navbar-expand-md navbar-light bg-light fixed-top">
+            <a href="{% url 'index' %}" class="navbar-brand">OpenShift Provision</a>
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbar-content">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a href="{% url 'index' %}" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'aws:index' %}" class="nav-link">Amazon Web Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link disabled">Google Cloud Platform</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link disabled">Microsoft Azure</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
         <main role="main" class="container">
             {% block content %}
                 <p>No content available for this page.</p>

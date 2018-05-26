@@ -1,67 +1,61 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
-from .models import AWSAccessKey, AWSAccessKeyForm
-from .forms import AmazonWebServicesForm, AmazonWebServicesDetailsForm
+from .models import AWSAccessKey, AWSCluster
+from .forms import AWSAccessKeyForm, AWSClusterForm
 
 
-class AWSAccessKeyList(ListView):
+class AWSView(View):
+    template_name = 'provision_aws/index.html'
+
+    def get(self, request):
+        aws_access_keys_count = AWSAccessKey.objects.count()
+
+        return render(request, self.template_name, {
+            'aws_access_keys_count': aws_access_keys_count,
+        })
+
+
+class AWSAccessKeyListView(ListView):
     model = AWSAccessKey
     context_object_name = 'aws_access_keys'
 
 
-class AWSAccessKeyCreate(CreateView):
+class AWSAccessKeyCreateView(CreateView):
     model = AWSAccessKey
     form_class = AWSAccessKeyForm
     context_object_name = 'aws_access_key'
     success_url = reverse_lazy('aws:key_list')
 
 
-class AWSAccessKeyUpdate(UpdateView):
+class AWSAccessKeyUpdateView(UpdateView):
     model = AWSAccessKey
     form_class = AWSAccessKeyForm
     context_object_name = 'aws_access_key'
     success_url = reverse_lazy('aws:key_list')
 
 
-class AWSAccessKeyDelete(DeleteView):
+class AWSAccessKeyDeleteView(DeleteView):
     model = AWSAccessKey
     context_object_name = 'aws_access_key'
     success_url = reverse_lazy('aws:key_list')
 
 
-def index(request):
-    if request.method == 'POST':
-        form = AmazonWebServicesForm(request.POST)
-        if form.is_valid():
-            request.session['aws_credentials'] = {
-                'aws_access_key_id': form.cleaned_data['aws_access_key_id'],
-                'aws_secret_access_key': form.cleaned_data['aws_secret_access_key'],
-                'aws_region': form.cleaned_data['aws_region'],
-            }
-
-            return redirect('aws:details')
-    else:
-        form = AmazonWebServicesForm()
-
-    return render(request, 'provision_aws/index.html', {
-        'form': form,
-    })
+class AWSClusterListView(ListView):
+    model = AWSCluster
+    context_object_name = 'aws_cluster'
 
 
-def details(request):
-    aws_credentials = request.session.get('aws_credentials')
-    if not aws_credentials:
-        return redirect('aws:index')
+class AWSClusterCreateView(CreateView):
+    model = AWSCluster
+    form_class = AWSClusterForm
+    context_object_name = 'aws_cluster'
+    success_url = reverse_lazy('aws:cluster_list')
 
-    if request.method == 'POST':
-        form = AmazonWebServicesDetailsForm(aws_credentials, request.POST)
-        if form.is_valid():
-            pass
-    else:
-        form = AmazonWebServicesDetailsForm(aws_credentials)
 
-    return render(request, 'provision_aws/details.html', {
-        'form': form,
-    })
+class AWSClusterDeleteView(DeleteView):
+    model = AWSCluster
+    context_object_name = 'aws_cluster'
+    success_url = reverse_lazy('aws:cluster_list')

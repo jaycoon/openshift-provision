@@ -7,68 +7,10 @@ import botocore.exceptions
 from django import forms
 from django.conf import settings
 
+from .models import AWSAccessKey, AWSCluster
+
 
 logger = logging.getLogger(__name__)
-
-
-class AmazonWebServicesForm(forms.Form):
-    aws_access_key_id = forms.CharField(
-        label='AWS Access Key',
-        required=True,
-    )
-
-    aws_secret_access_key = forms.CharField(
-        label='AWS Secret Key',
-        required=True,
-    )
-
-    aws_region = forms.ChoiceField(
-        label='AWS Region',
-        required=True,
-        initial='us-east-1',
-        choices=[
-           ('us-east-1', 'us-east-1'),
-           ('us-east-2', 'us-east-2'),
-           ('us-west-1', 'us-west-1'),
-           ('us-west-2', 'us-west-2'),
-           ('ap-south-1', 'ap-south-1'),
-           ('ap-southeast-1', 'ap-southeast-1'),
-           ('ap-northeast-2', 'ap-northeast-2'),
-           ('ap-northeast-3', 'ap-northeast-3'),
-           ('ap-northeast-1', 'ap-northeast-1'),
-           ('ap-southeast-2', 'ap-southeast-2'),
-           ('ca-central-1', 'ca-central-1'),
-           ('cn-north-1', 'cn-north-1'),
-           ('eu-central-1', 'eu-central-1'),
-           ('eu-west-1', 'eu-west-1'),
-           ('eu-west-2', 'eu-west-2'),
-           ('eu-west-3', 'eu-west-3'),
-           ('sa-east-1', 'sa-east-1'),
-        ],
-    )
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        aws_access_key_id = cleaned_data.get('aws_access_key_id')
-        aws_secret_access_key = cleaned_data.get('aws_secret_access_key')
-        aws_region = cleaned_data.get('aws_region')
-
-        sts = boto3.client('sts',
-                           aws_access_key_id=aws_access_key_id,
-                           aws_secret_access_key=aws_secret_access_key,
-                           region_name=aws_region)
-
-        try:
-            sts.get_session_token()
-        except botocore.exceptions.ClientError:
-            logger.exception('Invalid AWs credentials')
-            raise forms.ValidationError(
-                'Invalid AWS credentials. Ensure that "{}" and "{}" are valid.'.format(
-                    self.fields['aws_access_key_id'].label,
-                    self.fields['aws_secret_access_key'].label,
-                )
-            )
 
 
 class AmazonWebServicesDetailsForm(forms.Form):
@@ -210,3 +152,120 @@ class AmazonWebServicesDetailsForm(forms.Form):
 
         choices = [x for x in ssh_keys_glob if os.path.isfile(x)]
         return self._generate_field_choices(choices, include_empty_choice=True)
+
+
+class AWSAccessKeyForm(forms.ModelForm):
+    class Meta:
+        model = AWSAccessKey
+        fields = '__all__'
+
+    def clean(self):
+        super(AWSAccessKeyForm, self).clean()
+
+        cleaned_data = super().clean()
+
+        access_key = cleaned_data['access_key']
+        secret_key = cleaned_data['secret_key']
+
+        sts = boto3.client('sts',
+                           aws_access_key_id=access_key,
+                           aws_secret_access_key=secret_key,
+                           region_name='us-east-1')
+
+        try:
+            sts.get_session_token()
+        except botocore.exceptions.ClientError:
+            logger.exception('Invalid AWs credentials')
+            raise forms.ValidationError(
+                'Unable to connect using the provided AWS credentials. Verify that "{}" and "{}" are correct.'.format(
+                    self.fields['access_key'].label,
+                    self.fields['secret_key'].label,
+                )
+            )
+
+
+class AWSClusterForm(forms.ModelForm):
+    class Meta:
+        model = AWSCluster
+        fields = '__all__'
+        widgets = {
+            'rhsm_password': forms.PasswordInput,
+        }
+
+    # def __init__(self, aws_credentials, *args, **kwargs):
+    #     super(AWSClusterForm, self).__init__(*args, **kwargs)
+    #
+    #     self.boto3_session = boto3.Session(
+    #         aws_access_key_id=aws_credentials.get('aws_access_key_id'),
+    #         aws_secret_access_key=aws_credentials.get('aws_secret_access_key'),
+    #         region_name=aws_credentials.get('aws_region'),
+    #     )
+    #
+    #     self.fields['ec2_key_name'].choices = self._choices_ec2_key_name()
+    #     self.fields['route53_hosted_zone_id'].choices = self._choices_route53_hosted_zone_id()
+    #     self.fields['ec2_key_file'].choices = self._choices_ec2_key_file()
+    #
+    # @classmethod
+    # def _generate_field_choices(cls, choices, include_empty_choice=False):
+    #     field_choices = []
+    #     for choice in choices:
+    #         field_choices.append((choice, choice))
+    #
+    #     # Sort the field choices
+    #     field_choices = sorted(field_choices)
+    #
+    #     # Include an empty choice if specified
+    #     if include_empty_choice:
+    #         field_choices.insert(0, ('', ''))
+    #
+    #     return field_choices
+    #
+    # def _choices_ec2_key_name(self):
+    #     ec2 = self.boto3_session.resource('ec2')
+    #
+    #     choices = [key_pair.name for key_pair in ec2.key_pairs.all()]
+    #     return self._generate_field_choices(choices, include_empty_choice=True)
+    #
+    # def _choices_route53_hosted_zone_id(self):
+    #     route53 = self.boto3_session.client('route53')
+    #
+    #     choices = [
+    #         ('', ''),
+    #     ]
+    #     hosted_zones = route53.list_hosted_zones().get('HostedZones', [])
+    #     for hosted_zone in hosted_zones:
+    #         hosted_zone_name = hosted_zone.get('Name', '')
+    #         hosted_zone_id = hosted_zone.get('Id', '').replace('hostedzone', '').replace('/', '')
+    #         choices.append((hosted_zone_id, '[{}] {}'.format(hosted_zone_id, hosted_zone_name)))
+    #
+    #     return choices
+    #
+    # def _choices_ec2_key_file(self):
+    #     ssh_keys_glob = glob.glob(os.path.join(settings.SSH_KEYS_DIR, '**/*'), recursive=True)
+    #
+    #     choices = [x for x in ssh_keys_glob if os.path.isfile(x)]
+    #     return self._generate_field_choices(choices, include_empty_choice=True)
+    #
+    # def clean(self):
+    #     super(AWSClusterForm, self).clean()
+    #
+    #     cleaned_data = super().clean()
+    #
+    #     access_key = cleaned_data['access_key']
+    #     secret_key = cleaned_data['secret_key']
+    #
+    #     sts = boto3.client('sts',
+    #                        aws_access_key_id=access_key,
+    #                        aws_secret_access_key=secret_key,
+    #                        region_name='us-east-1')
+    #
+    #     try:
+    #         sts.get_session_token()
+    #     except botocore.exceptions.ClientError:
+    #         logger.exception('Invalid AWs credentials')
+    #         raise forms.ValidationError(
+    #             'Unable to connect using the provided AWS credentials. Verify that "{}" and "{}" are correct.'.format(
+    #                 self.fields['access_key'].label,
+    #                 self.fields['secret_key'].label,
+    #             )
+    #         )

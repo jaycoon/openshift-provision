@@ -1,20 +1,4 @@
-FROM docker.io/library/fedora:27
-
-RUN \
-    dnf install -y \
-        python2 \
-        python2-pip \
-        python2-devel \
-        python3 \
-        python3-pip \
-        python3-devel \
-        which \
-    && \
-    ln -sf /usr/bin/python3 /usr/local/bin/python \
-    && \
-    ln -sf /usr/bin/pip3 /usr/local/bin/pip \
-    && \
-    pip install pipenv
+FROM pipenv-python3
 
 COPY . /webapp
 WORKDIR /webapp

@@ -10,33 +10,26 @@
             <a href="{% url 'aws:index' %}">Amazon Web Services</a>
         </li>
         <li class="breadcrumb-item active" aria-current="page">
-            Access Keys
+            Clusters
         </li>
     </ol>
 </nav>
 
-<h3>AWS Access Keys</h3>
+<h3>AWS Clusters</h3>
 
 <table class="table">
     <thead>
         <tr>
             <th scope="col">Name</th>
-            <th scope="col">Access Key</th>
-            <th scope="col">Secret Key</th>
             <th scope="col">Actions</th>
         </tr>
     </thead>
     <tbody>
-        {% for aws_access_key in aws_access_keys %}
+        {% for aws_cluster in aws_clusters %}
             <tr>
                 <td class="text-monospace">{{ aws_access_key.name }}</td>
-                <td class="text-monospace">*****{{ aws_access_key.access_key | slice:"-4:" }}</td>
-                <td class="text-monospace">*****</td>
                 <td>
-                    <a href="{% url 'aws:key_update' aws_access_key.pk %}" class="mx-2">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <a href="{% url 'aws:key_delete' aws_access_key.pk %}" class="mx-2 text-danger">
+                    <a href="{% url 'aws:cluster_delete' cluster.pk %}" class="mx-2 text-danger">
                         <i class="fas fa-trash"></i>
                     </a>
                 </td>
@@ -44,14 +37,14 @@
         {% empty %}
             <tr>
                 <td colspan="4" class="text-muted">
-                    You do not have any AWS access keys saved.
+                    You do not have any AWS clusters.
                 </td>
             </tr>
         {% endfor %}
         <tr>
             <td colspan="4">
-                <a href="{% url 'aws:key_add' %}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Add Access Key
+                <a href="{% url 'aws:cluster_add' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> New Cluster
                 </a>
             </td>
         </tr>

@@ -18,7 +18,7 @@ from django.urls import path, include
 from django.views.generic.base import TemplateView
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='index.html')),
+    path('', TemplateView.as_view(template_name='index.html'), name='index'),
 
     path('aws/', include('apps.provision_aws.urls', namespace='aws')),
     path('admin/', admin.site.urls),

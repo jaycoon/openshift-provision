@@ -9,23 +9,42 @@
     </p>
 </div>
 
-<h4>TODO</h4>
-<ul>
-    <li>Check if no keys, ask user to create one</li>
-    <li>Button to go to key management</li>
-    <li>Button to deploy cluster</li>
-</ul>
-
 <div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <h4 class="card-header">Amazon Web Services: Credentials</h4>
-            <div class="card-body">
-                <form action="{% url 'aws:index' %}" method="post">
-                    {% include 'provision_aws/snippets/form.html' %}
-                </form>
+    {% if aws_access_keys_count == 0 %}
+        <div class="col-md-6 col-sm-12">
+            <div class="alert alert-warning">
+                <h5 class="alert-heading">Missing Access Keys</h5>
+
+                <p>
+                    You do not have any AWS access keys saved. These are required to continue. Please ese the button below to add your AWS access keys.
+                </p>
+
+                <div class="text-center">
+                    <a href="{% url 'aws:key_add' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Access Key
+                    </a>
+                </div>
             </div>
         </div>
+    {% else %}
+        <div class="col-md-6 col-sm-12">
+            <p class="text-center">
+                <a href="{% url 'aws:key_list' %}" class="btn btn-primary">
+                    Manage Access Keys
+                </a>
+            </p>
+        </div>
+    {% endif %}
+</div>
+
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-sm-12">
+        <p class="text-center">
+            <a href="{% url 'aws:cluster_list' %}" class="btn btn-primary">
+                Manage Clusters
+            </a>
+        </p>
     </div>
 </div>
 {% endblock %}

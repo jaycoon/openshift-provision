@@ -11,7 +11,7 @@
 
 <div class="row justify-content-center">
     {% if aws_access_keys_count == 0 %}
-        <div class="col-md-6 col-sm-12">
+        <div class="col-md-8 col-sm-12">
             <div class="alert alert-warning">
                 <h5 class="alert-heading">Missing Access Keys</h5>
 
@@ -27,24 +27,18 @@
             </div>
         </div>
     {% else %}
-        <div class="col-md-6 col-sm-12">
+        <div class="col-md-8 col-sm-12">
             <p class="text-center">
                 <a href="{% url 'aws:key_list' %}" class="btn btn-primary">
                     Manage Access Keys
                 </a>
             </p>
+            <p class="text-center">
+                <a href="{% url 'aws:cluster_list' %}" class="btn btn-primary">
+                    Manage Clusters
+                </a>
+            </p>
         </div>
     {% endif %}
-</div>
-
-
-<div class="row justify-content-center">
-    <div class="col-md-6 col-sm-12">
-        <p class="text-center">
-            <a href="{% url 'aws:cluster_list' %}" class="btn btn-primary">
-                Manage Clusters
-            </a>
-        </p>
-    </div>
 </div>
 {% endblock %}

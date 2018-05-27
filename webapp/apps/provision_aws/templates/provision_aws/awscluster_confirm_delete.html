@@ -4,18 +4,22 @@
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="card">
-            <h4 class="card-header">Amazon Web Services: New Cluster</h4>
+            <h4 class="card-header">Amazon Web Services: Delete Cluster</h4>
             <div class="card-body">
                 <form method="post">
-                    {% include 'provision_aws/snippets/form.html' %}
+                    {% csrf_token %}
+
+                    <p>
+                        Are you sure you want to delete <strong>{{ aws_cluster.name }}.{{ aws_cluster.openshift_base_domain }}</strong>?
+                    </p>
 
                     <div class="text-right">
                         <a href="{% url 'aws:cluster_list' %}" class="btn btn-secondary">
                             Cancel
                         </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i>
-                            Save
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i>
+                            Delete
                         </button>
                     </div>
                 </form>

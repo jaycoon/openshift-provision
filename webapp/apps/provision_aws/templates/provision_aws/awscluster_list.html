@@ -20,29 +20,34 @@
 <table class="table">
     <thead>
         <tr>
-            <th scope="col">Name</th>
+            <th scope="col">Domain</th>
+            <th scope="col">Type</th>
+            <th scope="col">Region</th>
             <th scope="col">Actions</th>
         </tr>
     </thead>
     <tbody>
         {% for aws_cluster in aws_clusters %}
             <tr>
-                <td class="text-monospace">{{ aws_access_key.name }}</td>
+                <td class="text-monospace">{{ aws_cluster.name }}.{{ aws_cluster.openshift_base_domain }}</td>
+                <td class="text-monospace">{{ aws_cluster.type }}</td>
+                <td class="text-monospace">{{ aws_cluster.aws_region }}</td>
                 <td>
-                    <a href="{% url 'aws:cluster_delete' cluster.pk %}" class="mx-2 text-danger">
-                        <i class="fas fa-trash"></i>
-                    </a>
+                    <a href="{% url 'aws:cluster_provision' aws_cluster.pk %}" class="mx-2"><i class="fas fa-angle-double-right" title="Re-provision Cluster"></i></a>
+                    <a href="#" class="mx-2"><i class="fas fa-play" title="Start Cluster"></i></a>
+                    <a href="#" class="mx-2"><i class="fas fa-stop" title="Stop Cluster"></i></a>
+                    <a href="{% url 'aws:cluster_delete' aws_cluster.pk %}" class="mx-2 text-danger"><i class="fas fa-trash" title="Delete Cluster"></i></a>
                 </td>
             </tr>
         {% empty %}
             <tr>
-                <td colspan="4" class="text-muted">
+                <td colspan="5" class="text-muted">
                     You do not have any AWS clusters.
                 </td>
             </tr>
         {% endfor %}
         <tr>
-            <td colspan="4">
+            <td colspan="5">
                 <a href="{% url 'aws:cluster_add' %}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> New Cluster
                 </a>

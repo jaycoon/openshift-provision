@@ -137,3 +137,8 @@ class AWSCluster(models.Model):
         verbose_name='AWS Region',
         on_delete=models.PROTECT,
     )
+    playbook_pid = models.PositiveIntegerField(
+        verbose_name='Playbook PID',
+        blank=True,
+        null=True,
+    )

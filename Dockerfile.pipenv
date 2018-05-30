@@ -2,6 +2,7 @@ FROM docker.io/library/fedora:27
 
 RUN \
     dnf install -y \
+        openssh-clients \
         python3 \
         python3-pip \
         python3-devel \
@@ -13,4 +14,6 @@ RUN \
     && \
     pip install --upgrade pip \
     && \
-    pip install pipenv
+    pip install pipenv \
+    && \
+    dnf clean all

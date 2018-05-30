@@ -1,3 +1,7 @@
+import os
+import subprocess
+
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
@@ -99,7 +103,54 @@ class AWSClusterProvisionView(View):
     def get(self, request, pk):
         aws_cluster = AWSCluster.objects.get(pk=pk)
 
-        
+        os.makedirs(settings.SSH_KEYS_DIR, mode=0o700, exist_ok=True)
+        ec2_key_file = os.path.join(settings.SSH_KEYS_DIR, '{}.pem'.format(aws_cluster.pk))
+        with open(ec2_key_file, 'w') as f:
+            f.write(aws_cluster.ec2_private_key)
+        os.chmod(ec2_key_file, 0o600)
+
+        playbook_vars = {
+            'cluster_name': aws_cluster.name,
+            'cluster_type': aws_cluster.type,
+            'openshift_version': aws_cluster.openshift_version,
+            'aws_region': aws_cluster.aws_region.name,
+            'ec2_ami_type': aws_cluster.ec2_ami_type,
+            'ec2_key_name': aws_cluster.ec2_key_name,
+            'ec2_key_file': ec2_key_file,
+            'route53_hosted_zone': aws_cluster.openshift_base_domain,
+            'route53_hosted_zone_id': aws_cluster.route53_hosted_zone_id,
+            'rhsm_username': aws_cluster.rhsm_username,
+            'rhsm_password': aws_cluster.rhsm_password,
+            'rhsm_pool': aws_cluster.rhsm_pool,
+        }
+
+        playbook_env = os.environ.copy()
+        playbook_env['AWS_ACCESS_KEY_ID'] = aws_cluster.aws_access_key.access_key
+        playbook_env['AWS_SECRET_ACCESS_KEY'] = aws_cluster.aws_access_key.secret_key
+
+        print(playbook_env)
+
+        playbook_command = [
+            settings.ANSIBLE_PLAYBOOK_PATH,
+            '/app/playbooks/aws/provision.yml',
+            '-vv'
+        ]
+        for k, v in playbook_vars.items():
+            playbook_command.append('-e')
+            playbook_command.append('{}="{}"'.format(k, v))
+
+        p = subprocess.Popen(
+            playbook_command,
+            # ['env'],
+            cwd='/app',
+            env=playbook_env,
+        )
+
+        print('PID', p.pid)
+        print('ARGS', p.args)
+
+        # aws_cluster.playbook_pid = p.pid
+        # aws_cluster.save()
 
         return render(request, self.template_name, {
             'aws_cluster': aws_cluster,

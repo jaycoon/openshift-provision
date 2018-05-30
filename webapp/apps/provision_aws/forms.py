@@ -1,11 +1,8 @@
-import glob
 import logging
-import os
 
 import boto3
 import botocore.exceptions
 from django import forms
-from django.conf import settings
 
 from .models import AWSAccessKey, AWSCluster, AWSRegion
 
@@ -76,6 +73,7 @@ class AWSClusterForm(forms.ModelForm):
         exclude = [
             'aws_access_key',
             'aws_region',
+            'provisioning',
         ]
         field_classes = {
             'ec2_key_name': AWSTypedChoiceField,

@@ -130,3 +130,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# Application
+
+ANSIBLE_PATH = '/usr/local/bin/ansible'
+ANSIBLE_PLAYBOOK_PATH = '/usr/local/bin/ansible-playbook'
+
+SSH_KEYS_DIR = '/root/.ssh'

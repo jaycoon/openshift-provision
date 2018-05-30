@@ -2,7 +2,7 @@
 
 - name: Create CloudFormation stack
   cloudformation:
-    stack_name: "{{ cluster_name }}"
+    stack_name: "{{ [cluster_name, route53_hosted_zone] | join('-') | replace('.', '-') }}"
     region: "{{ aws_region }}"
     state: present
     template: "{{ role_path }}/files/greenfield.{{ cluster_type }}.yml"

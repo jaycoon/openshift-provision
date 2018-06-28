@@ -1,0 +1,104 @@
+---
+
+- set_fact:
+    azure_resource_group_name: openshift
+
+# 2.2. Creating a Resource Group
+
+- azure_rm_resourcegroup:
+    name: "{{ azure_resource_group_name }}"
+    location: eastus
+
+# 2.3. Creating a Red Hat Enterprise Linux Base Image
+# TODO: Generate RHEL image from KVM image
+
+# 2.4. Creation of Red Hat OpenShift Container Platform Networks
+
+- azure_rm_virtualnetwork:
+    name: openshiftvnet
+    resource_group: "{{ azure_resource_group_name }}"
+    address_prefixes_cidr:
+      - 10.0.0.0/16
+
+- azure_rm_subnet:
+    name: ocp
+    resource_group: "{{ azure_resource_group_name }}"
+    virtual_network_name: openshiftvnet
+    address_prefix_cidr: 10.0.0.0/24
+
+# 2.5. Creating Network Security Groups
+
+- azure_rm_securitygroup:
+    name: bastion-nsg
+    resource_group: "{{ azure_resource_group_name }}"
+    tags:
+      bastion_nsg: ""
+    rules:
+      - name: bastion-nsg-ssh
+        priority: 500
+        destination_port_range: 22
+        access: Allow
+        protocol: Tcp
+        description: "SSH access from Internet"
+
+- azure_rm_securitygroup:
+    name: master-nsg
+    resource_group: "{{ azure_resource_group_name }}"
+    tags:
+      master_security_group: ""
+    rules:
+      - name: master-ssh
+        priority: 500
+        source_address_prefix: VirtualNetwork
+        destination_port_range: 22
+        access: Allow
+        protocol: Tcp
+        description: "SSH from the bastion"
+      - name: master-etcd
+        priority: 525
+        source_address_prefix: VirtualNetwork
+        destination_port_range: 2379,2380
+        access: Allow
+        protocol: Tcp
+        description: "ETCD service ports"
+      - name: master-api
+        priority: 550
+        destination_port_range: 443
+        access: Allow
+        protocol: Tcp
+        description: "API port"
+      - name: master-api-lb
+        source_address_prefix: VirtualNetwork
+        priority: 575
+        destination_port_range: 443
+        access: Allow
+        protocol: Tcp
+        description: "API port"
+      - name: master-ocp-tcp
+        priority: 600
+        source_address_prefix: VirtualNetwork
+        destination_port_range: 8053,24224
+        access: Allow
+        protocol: Tcp
+        description: "TCP DNS and fluentd"
+      - name: master-ocp-udp
+        priority: 625
+        source_address_prefix: VirtualNetwork
+        destination_port_range: 8053,24224
+        access: Allow
+        protocol: Udp
+        description: "UDP DNS and fluentd"
+      - name: node-kubelet
+        priority: 650
+        source_address_prefix: VirtualNetwork
+        destination_port_range: 10250
+        access: Allow
+        protocol: Tcp
+        description: "kubelet"
+      - name: node-sdn
+        priority: 675
+        source_address_prefix: VirtualNetwork
+        destination_port_range: 4789
+        access: Allow
+        protocol: Udp
+        description: "OpenShift sdn"

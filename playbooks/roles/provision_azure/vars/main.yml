@@ -1,2 +1,16 @@
 ---
-# vars file for provision_azure
+
+cluster_name: openshift
+
+azure_region: eastus
+azure_resource_group_name: "{{ cluster_name }}"
+azure_virtual_network_name: "{{ cluster_name }}-vnet"
+azure_subnet_name: "{{ cluster_name }}-subnet"
+
+azure_security_group_bastion: "{{ cluster_name }}-bastion-nsg"
+azure_security_group_master: "{{ cluster_name }}-master-nsg"
+azure_security_group_infra: "{{ cluster_name }}-infra-nsg"
+
+azure_network_interface_bastion: "{{ cluster_name }}-bastion-nic"
+azure_network_interface_master: "{{ cluster_name }}-master-nic"
+azure_network_interface_infra: "{{ cluster_name }}-infra-nic"
